@@ -4,7 +4,9 @@ The MSP430 is a mixed-signal microcontroller family from Texas Instruments, firs
 For more information, please refer to https://en.wikipedia.org/wiki/TI_MSP430
 
 # Hardware requirements
-* A development board, I prefer TI's MSP430 LaunchPad with EZFET jtag debugger integrated for beginners. If you have other minimum MSP430 system without FET, you may also need a FET(Flashing Emulation Tool) adapter (It's not cheap, even more expensive than a official LaunchPad).
+* A development board.
+  - I prefer TI's MSP430 LaunchPad with EZFET jtag debugger integrated for beginners. If you have other minimum MSP430 system without FET, you may also need a FET(Flashing Emulation Tool) adapter (It's not cheap, even more expensive than a official LaunchPad).
+  - If you really do not know which one to choose, buy the cheapest one such as G2/G2ET or more high end such as FR5994 or FR6989.
 
 
 **NOTE**
