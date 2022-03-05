@@ -28,9 +28,9 @@ TI officially provide opensource gcc toolchains and MCU support files, and relea
 
 # The MSP430 GNU Toolchain
 
-The sources and prebuilt release of MSP430 GCC can be downloaded from https://www.ti.com/tool/MSP430-GCC-OPENSOURCE#downloads
+The sources and prebuilt releases of MSP430 GCC can be downloaded from https://www.ti.com/tool/MSP430-GCC-OPENSOURCE#downloads, it includes binutils/gcc/gdb/newlib.
 
-Up to this tutorial written, the lastest version is '9.3.1.2' with released date '23 Jul 2021', you can download the sourcecodes or patchset to build the toolchain yourself using configuration options such as `./configure --prefix=/opt/msp430-gcc --target=msp430-elf`, it includes binutils/gcc/gdb/newlib.
+Up to this tutorial written, the lastest version is '9.3.1.2' with released date '23 Jul 2021', you can download the sourcecodes or patchset to build the toolchain yourself using configuration options such as `./configure --prefix=/opt/msp430-gcc --target=msp430-elf`.
 
 Here we directly use the prebuilt release since it is well supported officially.
 
@@ -51,8 +51,197 @@ sudo rm -rf msp430-gcc-support-files
 
 Here also installed the support files include headers and linkers for different MCUs to `msp430-elf` dir, after that, you can use these headers anywhere, otherwise, you have to deal with include dir and pass linker script to `ld`, it's not very easy for beginners.
 
+After installation finished, please add `/opt/msp430-gcc/bin` to PATH env according to your shell.
+
+# MSP Debug Stack
+The MSP debug stack (MSPDS) for all MSP430™ microcontrollers (MCUs) and SimpleLink™ MSP432™ devices consists of a static library on the host system side as well as an embedded firmware that runs on debug tools including the MSP-FET, MSP-FET430UIF or on-board eZ debuggers. 
+
+It is the bridging element between all PC software and all MSP430 and SimpleLink MSP432 microcontroller derivatives and handles tasks such as code download, stepping through code or break points. 
+
+You can download MSP Debug Stack from https://www.ti.com/tool/MSPDS#downloads, up to this tutorial written, the latest version is '3.15.1.1' with release date '12 Jun 2020'. Building it need a patch for linux, the patch provied within this repo.
+
+Building:
+```
+mkdir -p msp-debug-stack
+wget https://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPDS/3_15_1_001/export/MSPDebugStack_OS_Package_3_15_1_1.zip
+unzip MSPDebugStack_OS_Package_3_15_1_1.zip -d .
+cat MSPDebugStack_build_linux.patch|patch -p1
+make
+```
+
+Installation:
+```
+sudo install -m0755 libmsp430.so /usr/lib
+sudo mkdir -p /usr/include/libmsp430
+sudo cp DLL430_v3/include/* /usr/include/libmsp430
+```
+
+# SDKS
+
+SDK for TI MSP430 acctually is a set of headers and linker scripts for various MSP430 models, we already install it with GCC toolchain.
+
+Let's have a try, old fashioned way， let's blink a LED on board, here I use fr6989 launchpad as example, please read the circuit diagram of your board to find the IO pin you should manupulate to turn on or toggle a LED, fr6989 have two LED on board, the codes below turn on one and blink one.
+
+```
+// blink.c
+#include <msp430fr6989.h>
+
+int main(void)
+{
+    unsigned int i;
+
+    WDTCTL = WDTPW | WDTHOLD; // stop watchdog timer
+    P1DIR |= BIT0;
+    P1OUT |= BIT0;
+    P9DIR |= BIT7;
+    P9OUT |= BIT7;
+
+    PM5CTL0 &= ~LOCKLPM5;
+
+    while(1)
+    {
+      P9OUT |= BIT7;
+      for(i = 0; i < 30000; i++);
+      P9OUT &= ~BIT7;
+      for(i = 0; i < 30000; i++);
+    }
+
+    return 0;
+}
+```
+
+Compile it:
+```
+msp430-elf-gcc -g -mmcu=msp430fr6989 -o main main.c
+```
+
+If built successfully, 'main' elf generated, it means toolchain works. otherwise, please examine the step of the toolchain installation.
+
+# Flashing
+There are 2 Flashing tools you can use with linux for MSP430.
+
+## mspdebug
+MSPDebug is a free debugger for use with MSP430 MCUs. 
+
+It supports FET430UIF, eZ430, RF2500 and Olimex MSP430-JTAG-TINY programmers, as well as many other compatible devices. 
+
+It can be used as a proxy for gdb or as an independent debugger with support for programming, disassembly and reverse engineering.
+
+Installation:
+```
+git clone https://github.com/dlbeer/mspdebug.git
+cd mspdebug
+make
+sudo make install
+```
+
+After installation finished, please connect the launchpad to PC linux with a USB cable, the devices '/dev/ttyACM[n]' should appear. and flashing above blink example as:
+
+```
+sudo mspdebug tilib -d /dev/ttyACM0 'prog main'
+```
+
+If you get some errors from `dmesg`, try to update the EZFET firmware with:
+```
+sudo mspdebug tilib -d /dev/ttyACM0 --allow-fw-update
+```
+
+and try flashing again.
 
 
+## MSPFlasher provided by TI officially
 
+MSPFlasher is an open-source, shell-based (command line) interface for programming MSP430™ and MSP432™ microcontrollers (MCUs) through JTAG and provides the most common programming functions. MSP Flasher can be used to download binary files directly to memory without the need of an IDE like CCS or IAR. It can also be used to extract firmware and lock JTAG access permanently. 
 
+The source codes of MSPFlasher can be obtained from its' installer package.
 
+```
+wget http://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSP430Flasher/1_03_20_00/exports/MSPFlasher-1_03_20_00-linux-x64-installer.zip
+unzip MSPFlasher-1_03_20_00-linux-x64-installer.zip
+
+chmod +x ./MSPFlasher-1.3.20-linux-x64-installer.run
+./MSPFlasher-1.3.20-linux-x64-installer.run --mode unattended --prefix `pwd`/ti
+rm -rf ti/libmsp430.so
+
+cd ti/Source
+make
+cd ..
+sudo install -m0755 MSP430Flasher /usr/bin
+```
+
+You may also need to create a udev rules to set EZFET devices to correct permissions if you do not want to use 'sudo' everytime.
+
+Create a file `/etc/udev/rules.d/99-ti-launchpad.rules` with the contents:
+
+```
+ATTRS{idVendor}=="2047", ATTRS{idProduct}=="0010", MODE="0660", GROUP="dialout"
+ATTRS{idVendor}=="2047", ATTRS{idProduct}=="0013", MODE="0660", GROUP="dialout"
+ATTRS{idVendor}=="2047", ATTRS{idProduct}=="0203", MODE="0660", GROUP="dialout"
+```
+reload udev rules or just reboot:
+```
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```
+
+and add current user to `dialout` group
+```
+usermod -a -G dialout <your user name>
+```
+
+Above steps about udev rules are optional and can be omitted, you need to prepend `sudo` to `MSP430Flasher` everytime.
+
+# Debugging
+
+Here is a simple demo using above blink example, Launch a terminal and run:
+```
+sudo mspdebug tilib -d /dev/ttyACM0 gdb
+```
+
+the output looks like:
+```
+...
+Using new (SLAC460L+) API
+MSP430_Initialize: /dev/ttyACM0
+Firmware version is 31501001
+MSP430_VCC: 3000 mV
+MSP430_OpenDevice
+MSP430_GetFoundDevice
+Device: MSP430FR6989 (id = 0x0160)
+3 breakpoints available
+MSP430_EEM_Init
+Chip ID data:
+  ver_id:         81a8
+  ver_sub_id:     0000
+  revision:       30
+  fab:            55
+  self:           5555
+  config:         20
+  fuses:          55
+Bound to port 2000. Now waiting for connection...
+```
+
+And launch another terminal, run:
+```
+msp430-elf-gdb -q main
+(gdb) target remote :2000
+Remote debugging using :2000
+0x00004402 in __crt0_start ()
+(gdb) load
+Loading section .upper.data, size 0x2 lma 0x4400
+Loading section .text, size 0x9e lma 0x4402
+Loading section __reset_vector, size 0x2 lma 0xfffe
+Start address 0x00004402, load size 162
+Transfer rate: 2 KB/sec, 54 bytes/write.
+(gdb) break 22
+(gdb) break 22
+Breakpoint 1 at 0x447c: file main.c, line 22.
+(gdb) c
+Continuing.
+
+Breakpoint 1, main () at main.c:22
+22            P9OUT &= ~BIT7;
+
+```
+
+Beside as a proxy to gdb, mspdebug can also work as a debugger. please refer to mspdebug and gdb manuals for more information. 
