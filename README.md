@@ -16,6 +16,7 @@ For more information, please refer to https://en.wikipedia.org/wiki/TI_MSP430
 
 # Toolchain overview
 * Compiler, gcc with TI's official support.
+  - For rust toolchain, please refer to https://github.com/rust-embedded/msp430-quickstart
 * Debugger, mspdebug/gdb
 * SDK, opensource headers/linker script provied by TI.
 * Flashing tool, mspdebug/MSP430Flasher from TI.
@@ -259,4 +260,8 @@ to flash with mspdebug:
 ```
 make flash_mspdebug
 ```
+
+
+There are still a lot need to write, for example, various target file formats, etc. but this tutorial should be enough to help you start MSP430 development with Linux.
+
 
