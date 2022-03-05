@@ -245,3 +245,18 @@ Breakpoint 1, main () at main.c:22
 ```
 
 Beside as a proxy to gdb, mspdebug can also work as a debugger. please refer to mspdebug and gdb manuals for more information. 
+
+# Project template
+
+A project and Makefile templates provided within this repo, Please refer to the Makefile and change it according to your development board.
+
+to flash with MSP430Flasher:
+```
+make flash_msp430flasher
+```
+
+to flash with mspdebug:
+```
+make flash_mspdebug
+```
+
