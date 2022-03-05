@@ -11,8 +11,8 @@ For more information, please refer to https://en.wikipedia.org/wiki/TI_MSP430
 
 **NOTE**
 
-- MSP430 support JTAG and a 2-wire JTAG(Spy-Bi-Wire) interface, but it's NOT compatible with ARM JTAG, So you can not use your ARM JTAG adapters with MSP430.
-- Ti's Launchpad with EZFET usually have some jumpers between the EZFET and MCU, you can use the EZFET standalone to connect to other development board.
+- MSP430 support JTAG and a 2-wire JTAG(Spy-Bi-Wire) interface, but it's NOT compatible with ARM JTAG, so you can not use your ARM JTAG adapters with MSP430.
+- Ti's Launchpad with EZFET usually have some jumpers between the EZFET and MCU, you can use the EZFET standalone to connect to other MSP430 development board.
 
 # Toolchain overview
 * Compiler, gcc with TI's official support.
