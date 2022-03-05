@@ -1,0 +1,52 @@
+diff -Nur msp-debug-stack-3.15.1.1/Makefile msp-debug-stack-3.15.1.1n/Makefile
+--- msp-debug-stack-3.15.1.1/Makefile	2020-06-03 16:10:18.000000000 +0800
++++ msp-debug-stack-3.15.1.1n/Makefile	2022-03-04 15:25:20.684685422 +0800
+@@ -25,7 +25,8 @@
+ 	-I./DLL430_v3/src/TI/DLL430/EnergyTrace_TSPA \
+ 	-I./Bios/include \
+ 	-I./ThirdParty/include \
+-	-I./ThirdParty/BSL430_DLL
++	-I./ThirdParty/BSL430_DLL \
++	-I/usr/include/hidapi
+ 
+ 
+ LIBS :=
+@@ -44,7 +45,7 @@
+ ifeq ($(PLATFORM),Linux)
+ 	CXX:= g++
+ 	
+-	STATICOUTPUT := linux64
++	STATICOUTPUT := libmsp430
+ 
+ 	OUTPUT := libmsp430.so
+ 	DEFINES += -DUNIX
+@@ -55,7 +56,7 @@
+ 	LIBS += -lusb-1.0
+ 	endif
+ 
+-	LIBS += -lusb-1.0 -lrt -lpthread
++	LIBS += -lusb-1.0 -lrt -lpthread -lhidapi-libusb
+ 
+ 	ifdef BOOST_DIR
+ 	INCLUDES += -I$(BOOST_DIR)
+@@ -66,7 +67,6 @@
+ 	BSTATIC := -Wl,-Bstatic
+ 	BDYNAMIC := -Wl,-Bdynamic
+ 
+-	HIDOBJ := $(LIBTHIRD)/hid-libusb.o
+ else
+ 	CXX:= clang++
+ 
+diff -Nur msp-debug-stack-3.15.1.1/ThirdParty/BSL430_DLL/Makefile msp-debug-stack-3.15.1.1n/ThirdParty/BSL430_DLL/Makefile
+--- msp-debug-stack-3.15.1.1/ThirdParty/BSL430_DLL/Makefile	2019-11-18 13:16:00.000000000 +0800
++++ msp-debug-stack-3.15.1.1n/ThirdParty/BSL430_DLL/Makefile	2022-03-04 15:16:55.014737258 +0800
+@@ -21,7 +21,8 @@
+ 	-I./BSL430_DLL/Utility_Classes \
+ 	-I./BSL430_DLL/Physical_Interfaces \
+ 	-I./BSL430_DLL/Packet_Handlers \
+-	-I./BSL430_DLL/Connections
++	-I./BSL430_DLL/Connections \
++	-I/usr/include/hidapi
+ 
+ SRC := \
+ 	./BSL430_DLL/MSPBSL_Factory.cpp \
