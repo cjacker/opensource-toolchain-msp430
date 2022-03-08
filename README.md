@@ -119,9 +119,12 @@ msp430-elf-gcc -g -mmcu=msp430fr6989 -o main main.c
 If built successfully, 'main' elf generated, it means toolchain works. otherwise, please examine the steps of the toolchain installation.
 
 # Flashing
-There are 2 Flashing tools you can use with linux for MSP430.
+There are 3 Flashing tools you can use with linux for MSP430, include mspdebug, msp-flasher(TI) and bsl scripter(TI)
 
-Note, Some models of MSP430 also support BSL UART/I2C flashing, and TI officially provided a bsl-scripter tool. but it need a USB to TTL adapter at least with RX/TX/DTR/RTS pins and may also need a special designed circuit, you should buy "MSP430 BSL adapter" or something like that. I tried bsl-scripter with some cheap  general USB to TTL adapter, the codes of bsl-scripter need some changes, and the RESETControl/TESTControl code need to implement for Linux. Please refer to https://github.com/gbhug5a/CP2102-with-BSL-Scripter-for-MSP430 for more information. I keep 2 patches of bsl-scripter for linux within this repo, and maybe implement the missing codes some day in future.
+**Note:**
+* Not all models of MSP430 support BSL UART flashing, please read the datasheet first.
+* TI officially provided a bsl-scripter tool and only works with TI MSP BSL rocket adapter and some adapter special designed for MSP430.
+* **If you want to use general USB to TTL UART adapter, at least it should have RX/TX/DTR/RTS pins and need some patches to bsl scripter.**
 
 ## mspdebug
 MSPDebug is a free debugger for use with MSP430 MCUs. 
@@ -193,6 +196,66 @@ usermod -a -G dialout <your user name>
 ```
 
 Above steps about udev rules are optional and can be omitted, if you prepend `sudo` to `MSP430Flasher` everytime.
+
+## UART BSL flashing
+TI provide bsl scripter for some new MSP430 model, it support UART/I2C flashing but still need a special adatper or a special designed circuit. 
+
+If you want to use general USB to TTL UART adapter, you should apply some patches to bsl scripter and rebuilt it by yourself.
+
+The code changes is described at https://github.com/gbhug5a/CP2102-with-BSL-Scripter-for-MSP430 and I implement the TEST/RESET signal control for Linux, since the upstream codes from TI leave them unimplemented for Linux.
+
+The BSL Scripter is a command line tool to communicate with the bootloader (BSL) on an MSP430™ or SimpleLink™ MSP432™ microcontroller. 
+
+you can download the release package with source codes from https://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPBSL_Scripter/latest/exports/BSLScripter-3.4.0.2-linux64-installer.zip, the latest version up to this tutorial written is '3.4.0.2' and download 3 patches from this repo.
+
+before building it, you should have boost/hidapi/libusb development package installed:
+
+```
+unzip BSLScripter-3.4.0.2-linux64-installer.zip
+./BSLScripter-3.4.0.2-linux64-installer.run --mode unattended --prefix `pwd`/bsl-scripter
+cd bsl-scripter
+cat 001-bsl-scripter-build-linux.patch | patch -p1
+cat 002-bsl-scripter-invoke.patch | patch -p1               
+cat 003-bsl-scripter-test-reset-for-linux.patch | patch -p1
+cd Source-Linux
+make BIT64=1
+sudo install -m0755 bsl-scripter-linux-64 /usr/bin/bsl-scripter
+```
+
+This tutorial use FR6989 Launchpad, please wire up USB2TTL adapter with Launchpad as:
+
+```
+RX->TX(P2.0), not the backchannel TX
+TX->RX(P2.1), not the backchannel RX
+DTR->SBWTDIO/RST
+RTS->SBWTCK/TEST
+GND->GND
+VCC->VCC, if the board need power supply from USB2TTL adapter.
+```
+
+And use the `FRxx_uart` examples in `bsl-scripter/ScriptExampleLinux`, if you use general USB to TTL adapter, please change the `MODE` line of `script_FRxx_uart.txt` from
+```
+MODE FRxx UART 9600 /dev/ttyACM0
+```
+to
+```
+MODE INVOKE FRxx UART 9600 PARITY /dev/ttyUSB0
+```
+the **'INVOKE'** means a special workaround to enter BSL with general USB to TTL adapter.
+
+the **'PARITY'** here is for my FT2232 adapter, you may not need to set this arg.
+
+and change the device according to your adapter.
+
+and try run:
+```
+sudo bsl-scripter script_FRxx_uart.txt
+```
+
+the output should looks like:
+
+<img src="https://user-images.githubusercontent.com/1625340/157285979-3abd84aa-9436-469e-9c9e-6071801a4322.png" width="70%"/>
+
 
 # Debugging
 
