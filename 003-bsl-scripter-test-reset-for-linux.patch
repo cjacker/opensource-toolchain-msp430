@@ -1,0 +1,92 @@
+--- ti.orig/Source-Linux/UartComm.h	2022-03-08 23:39:54.385489379 +0800
++++ ti/Source-Linux/UartComm.h	2022-03-09 00:16:44.855885831 +0800
+@@ -79,7 +79,10 @@
+ 
+ 	UartComm(ModeParams* modeParams, Util * util);
+ 	~UartComm();
+-
++#if (defined(linux) || defined(__linux) || defined(__linux__))
++  void setTEST(bool level);
++  void setRESET(bool level);
++#endif
+ 	/***********************************************************************************
+ 	*Function:    init
+ 	*Description: do the initialization of the communication protocol based
+--- ti.orig/Source-Linux/UartComm.cpp	2022-03-08 23:39:54.384489378 +0800
++++ ti/Source-Linux/UartComm.cpp	2022-03-09 00:20:11.264210802 +0800
+@@ -114,6 +114,34 @@
+ 
+ #define PLATFORM_DELAY(millis) std::this_thread::sleep_for(std::chrono::milliseconds(millis))
+ 
++#if (defined(linux) || defined(__linux) || defined(__linux__))
++void UartComm::setTEST(bool level)
++{
++  uint16_t flags;
++
++  int fd = port.native_handle();
++  ioctl(fd, TIOCMGET, &flags);
++  if(level)
++    flags |= TIOCM_RTS;  
++  else
++    flags &= ~TIOCM_RTS;
++  ioctl(fd, TIOCMSET, &flags);
++}
++
++void UartComm::setRESET(bool level)
++{
++  uint16_t flags;
++
++  int fd = port.native_handle();
++  ioctl(fd, TIOCMGET, &flags);
++  if(level)
++    flags |= TIOCM_DTR;
++  else
++    flags &= ~TIOCM_DTR;
++  ioctl(fd, TIOCMSET, &flags);
++}
++#endif
++
+ void UartComm::init(ModeParams* modeParams)
+ {
+ 	// Check if the port is open. If yes, close it before initialize the port.
+@@ -147,9 +175,11 @@
+ 	// Configure the UART to have 8 bit data format
+ 	port.set_option(boost::asio::serial_port_base::character_size(8));
+ 
++
++
+   if (modeParams->enInvoke) {
+     PLATFORM_DELAY(15);
+-
++#if defined(_WIN32) || defined(_WIN64)
+     port.set_option(RESETControl(1));
+     port.set_option(TESTControl(0));
+     PLATFORM_DELAY(15);
+@@ -167,6 +197,27 @@
+     PLATFORM_DELAY(15);
+ 
+     port.set_option(TESTControl(0));
++#endif
++
++#if (defined(linux) || defined(__linux) || defined(__linux__))
++    setRESET(1);
++    setTEST(0);
++    PLATFORM_DELAY(15);
++
++    setTEST(1);
++    PLATFORM_DELAY(15);
++
++    setTEST(0);
++    PLATFORM_DELAY(15);
++
++    setTEST(1);
++    PLATFORM_DELAY(15);
++
++    setRESET(0);
++    PLATFORM_DELAY(15);
++
++    setTEST(0);
++#endif
+ 
+ 		// From here we flush the serial buffer to discard junk characters received between the microcontroller resetting and being stable in bootloader mode
+ 		// For example MSP430F6736 pulls its Tx line low which this program interprets as a character.
