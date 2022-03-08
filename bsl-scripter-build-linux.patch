@@ -1,0 +1,83 @@
+diff -Nur ti/Source-Linux/EthernetComm.cpp ti.old/Source-Linux/EthernetComm.cpp
+--- ti/Source-Linux/EthernetComm.cpp	2018-04-26 19:20:52.000000000 +0800
++++ ti.old/Source-Linux/EthernetComm.cpp	2022-03-08 19:05:06.832243599 +0800
+@@ -81,6 +81,12 @@
+ 	#include <unistd.h>
+ #endif
+ 
++#if BOOST_VERSION >= 107000
++#define GET_IO_SERVICE(s) ((boost::asio::io_context&)(s).get_executor().context())
++#else
++#define GET_IO_SERVICE(s) ((s).get_io_service())
++#endif
++
+ const uint8_t EthernetComm::NUM_OF_TRY_WAITING_BOOTP_OR_TFTP = 5;
+ const uint8_t EthernetComm::TIMER_DEADLINE = 5; 
+ 
+@@ -243,7 +249,7 @@
+ 
+ std::vector<uint8_t>* EthernetComm::receiveBuffer(int32_t size)
+ {
+-	socketTftpData.get_io_service().reset();
++	GET_IO_SERVICE(socketTftpData).reset();
+ 	socketTftpData.async_receive_from(boost::asio::buffer(dataRxBuffer), tftpRecpDataEndpoint,
+ 		                              boost::bind(&EthernetComm::onRead, this,
+ 		                              boost::asio::placeholders::error,
+@@ -429,7 +435,7 @@
+ 	requestBootpEndpoint.port(BOOTP_SERVER_PORT);
+ 
+ 	boost::system::error_code error;
+-	socketBootp.get_io_service().reset();
++	GET_IO_SERVICE(socketBootp).reset();
+ 	socketBootp.async_receive_from(boost::asio::buffer(dataRxBuffer), requestBootpEndpoint,
+ 								   boost::bind(&EthernetComm::onRead, this,
+ 								   boost::asio::placeholders::error,
+@@ -646,7 +652,7 @@
+ 
+ 	tftpRequestEndpoint.address(boost::asio::ip::address_v4::from_string(clientIpAddress));
+ 
+-	socketTftpRequest.get_io_service().reset();
++	GET_IO_SERVICE(socketTftpRequest).reset();
+ 	socketTftpRequest.async_receive_from(boost::asio::buffer(dataRxBuffer), tftpRequestEndpoint,
+ 		                                 boost::bind(&EthernetComm::onRead, this,
+ 		                                 boost::asio::placeholders::error,
+diff -Nur ti/Source-Linux/Makefile ti.old/Source-Linux/Makefile
+--- ti/Source-Linux/Makefile	2018-04-26 19:20:52.000000000 +0800
++++ ti.old/Source-Linux/Makefile	2022-03-08 19:09:24.068583055 +0800
+@@ -18,7 +18,6 @@
+ export DEBUG
+ 
+ INCLUDES := \
+-	-I./ThirdParty/include \
+ 	-I. 
+ 	
+ LIBS :=
+@@ -31,8 +30,8 @@
+ LIBS += -lboost_filesystem -lboost_system -lboost_program_options
+ endif
+ 
+-LIBTHIRD := ./ThirdParty/lib64
+-LIBDIRS := -L$(LIBTHIRD)
++LIBTHIRD := 
++LIBDIRS := 
+ 
+ PLATFORM := $(shell uname -s)
+ ifeq ($(PLATFORM),Linux)
+@@ -57,7 +56,7 @@
+ 	LIBS += -lusb-1.0 
+ 	endif
+ 
+-	LIBS += -lusb-1.0 -lrt -lpthread -lc
++	LIBS += -lusb-1.0 -lrt -lpthread -lc -lhidapi-libusb
+ 
+ 	ifdef BOOST_DIR
+ 	INCLUDES += -I$(BOOST_DIR)
+@@ -67,7 +66,7 @@
+ 	BSTATIC := -Wl,-Bstatic
+ 	BDYNAMIC := -Wl,-Bdynamic
+ 
+-	HIDOBJ := $(LIBTHIRD)/hid-libusb.o
++	HIDOBJ := 
+ 	
+ else
+ 	CXX:= clang++

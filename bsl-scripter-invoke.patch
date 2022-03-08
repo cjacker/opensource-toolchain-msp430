@@ -1,0 +1,125 @@
+diff -Nur ti/Source-Linux/DataType.h ti.invoke/Source-Linux/DataType.h
+--- ti/Source-Linux/DataType.h	2018-04-26 19:20:52.000000000 +0800
++++ ti.invoke/Source-Linux/DataType.h	2022-03-08 20:27:45.677344356 +0800
+@@ -104,6 +104,7 @@
+ 	bool crypto;                          // acknowledge if the CryptoBSL is chosen
+ 	bool f543x;                           // 
+ 	bool enParity;						  // enable the praity bit in UART transmission for certain devices
++	bool enInvoke;              // enable invoke sequence on DTR and RTS
+ 	std::string macAddress;               // MAC address of the MSP432E target bootloader  
+ 	std::string clientIpAddress;	      // Client IP address for MSP432E target bootloader 
+ 	std::string serverIpAddress;          // Server IP address chosen by the user
+diff -Nur ti/Source-Linux/Interpreter.cpp ti.invoke/Source-Linux/Interpreter.cpp
+--- ti/Source-Linux/Interpreter.cpp	2018-04-26 19:20:52.000000000 +0800
++++ ti.invoke/Source-Linux/Interpreter.cpp	2022-03-08 20:51:16.412652108 +0800
+@@ -77,6 +77,7 @@
+ const std::string Interpreter::IP_SERVER_ARG = "IPServer=";
+ const std::string Interpreter::I2C_ADDRESS = "I2CAddr=";
+ const std::string Interpreter::PARITY_ARG = "PARITY";
++const std::string Interpreter::INVOKE_ARG = "INVOKE";
+ const std::string Interpreter::CRYPTO_ARG = "CRYPTO";
+ const std::string Interpreter::MSPFET1_ARG = "MSPFET";
+ const std::string Interpreter::MSPFET2_ARG = "MSP-FET";
+@@ -808,6 +809,7 @@
+ 
+ 	modeParams.crypto = false;
+ 	modeParams.enParity = false;
++	modeParams.enInvoke = false;
+ 	modeParams.useMspFet = false;
+ 	modeParams.disableAutoBaud = false;
+ 	modeParams.i2cSlaveAddr = 0;
+@@ -878,6 +880,9 @@
+ 			modeParams.enParity = true;
+ 		}
+ 
++    if (util->compareString(param, INVOKE_ARG)) {
++      modeParams.enInvoke = true;
++    }
+ 		//Check the parity
+ 		if (util->compareString(param, MSPFET1_ARG) || util->compareString(param, MSPFET2_ARG))
+ 		{
+@@ -1724,4 +1729,4 @@
+ 
+ 	scripterStream->writeLogFile(version, true);
+ }
+-  
+\ 文件尾没有换行符
++  
+diff -Nur ti/Source-Linux/Interpreter.h ti.invoke/Source-Linux/Interpreter.h
+--- ti/Source-Linux/Interpreter.h	2018-04-26 19:20:52.000000000 +0800
++++ ti.invoke/Source-Linux/Interpreter.h	2022-03-08 20:51:39.113673157 +0800
+@@ -168,6 +168,7 @@
+ 	static const std::string IP_SERVER_ARG;
+ 	static const std::string I2C_ADDRESS;
+ 	static const std::string PARITY_ARG;
++	static const std::string INVOKE_ARG;
+ 	static const std::string CRYPTO_ARG;
+ 	static const std::string MSPFET1_ARG;
+ 	static const std::string MSPFET2_ARG;
+diff -Nur ti/Source-Linux/UartComm.cpp ti.invoke/Source-Linux/UartComm.cpp
+--- ti/Source-Linux/UartComm.cpp	2018-04-26 19:20:52.000000000 +0800
++++ ti.invoke/Source-Linux/UartComm.cpp	2022-03-08 20:55:03.513862643 +0800
+@@ -73,6 +73,8 @@
+ 
+ #if defined(_WIN32) || defined(_WIN64)
+ 
++#define PLATFORM_FLUSH_COMM_PORT(handle) ::PurgeComm(handle, PURGE_RXABORT | PURGE_TXABORT | PURGE_RXCLEAR | PURGE_TXCLEAR)
++
+ #else
+ #include <unistd.h>     // UNIX standard function definitions
+ #include <fcntl.h>      // File control definitions
+@@ -89,6 +91,8 @@
+ 	speed_t c_ispeed;
+ 	speed_t c_ospeed;
+ };
++
++#define PLATFORM_FLUSH_COMM_PORT(handle) ::tcflush(handle, TCIOFLUSH)
+ #endif
+ 
+ UartComm::UartComm(ModeParams* modeParams, Util * util)
+@@ -108,6 +112,8 @@
+ 	this->close();
+ }
+ 
++#define PLATFORM_DELAY(millis) std::this_thread::sleep_for(std::chrono::milliseconds(millis))
++
+ void UartComm::init(ModeParams* modeParams)
+ {
+ 	// Check if the port is open. If yes, close it before initialize the port.
+@@ -141,6 +147,36 @@
+ 	// Configure the UART to have 8 bit data format
+ 	port.set_option(boost::asio::serial_port_base::character_size(8));
+ 
++  if (modeParams->enInvoke) {
++    PLATFORM_DELAY(15);
++
++    port.set_option(RESETControl(1));
++    port.set_option(TESTControl(0));
++    PLATFORM_DELAY(15);
++
++    port.set_option(TESTControl(1));
++    PLATFORM_DELAY(15);
++
++    port.set_option(TESTControl(0));
++    PLATFORM_DELAY(15);
++
++    port.set_option(TESTControl(1));
++    PLATFORM_DELAY(15);
++
++    port.set_option(RESETControl(0));
++    PLATFORM_DELAY(15);
++
++    port.set_option(TESTControl(0));
++
++		// From here we flush the serial buffer to discard junk characters received between the microcontroller resetting and being stable in bootloader mode
++		// For example MSP430F6736 pulls its Tx line low which this program interprets as a character.
++		// Boost does not provide a standard mechanism to flush the buffer so we have to resort to PurgeComm on Windows and tcflush on Linux (see above).
++
++		PLATFORM_DELAY(500); // Wait for the microcontroller to settle into its bootloader
++
++		PLATFORM_FLUSH_COMM_PORT(port.lowest_layer().native_handle());
++  }
++
+ 	// Execute the invoke sequence for MSP430 devices
+ 	if (modeParams->family != Family::P4xx)
+ 	{
