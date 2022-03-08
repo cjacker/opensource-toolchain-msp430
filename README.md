@@ -121,6 +121,8 @@ If built successfully, 'main' elf generated, it means toolchain works. otherwise
 # Flashing
 There are 2 Flashing tools you can use with linux for MSP430.
 
+Note, Some models of MSP430 also support BSL UART/I2C flashing, and TI officially provided a bsl-scripter tool. but it need a USB to TTL adapter at least with RX/TX/DTR/RTS pins and may also need a special designed circuit, you should buy "MSP430 BSL adapter" or something like that. I tried bsl-scripter with some cheap  general USB to TTL adapter, the codes of bsl-scripter need some changes, and the RESETControl/TESTControl code need to implement for Linux. Please refer to https://github.com/gbhug5a/CP2102-with-BSL-Scripter-for-MSP430 for more information. I keep 2 patches of bsl-scripter for linux within this repo, and maybe implement the missing codes some day in future.
+
 ## mspdebug
 MSPDebug is a free debugger for use with MSP430 MCUs. 
 
