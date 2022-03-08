@@ -81,7 +81,7 @@ sudo cp DLL430_v3/include/* /usr/include/libmsp430
 
 SDK for TI MSP430 acctually is a set of headers and linker scripts for various MSP430 models, we already install it with GCC toolchain.
 
-Let's have a try, old fashioned way， let's blink a LED on board, here I use fr6989 launchpad as example, please read the circuit diagram of your board to find the IO pin you should manupulate to turn on or toggle a LED, fr6989 have two LED on board, the codes below turn on one and blink one.
+Let's blink a LED on board, here I use fr6989 launchpad as example, please read the circuit diagram of your board to find the IO pin you should manupulate to turn on or toggle a LED, fr6989 have two LED on board, the codes below turn on one and blink another one.
 
 ```
 // blink.c
@@ -116,7 +116,7 @@ Compile it:
 msp430-elf-gcc -g -mmcu=msp430fr6989 -o main main.c
 ```
 
-If built successfully, 'main' elf generated, it means toolchain works. otherwise, please examine the step of the toolchain installation.
+If built successfully, 'main' elf generated, it means toolchain works. otherwise, please examine the steps of the toolchain installation.
 
 # Flashing
 There are 2 Flashing tools you can use with linux for MSP430.
@@ -190,7 +190,7 @@ and add current user to `dialout` group
 usermod -a -G dialout <your user name>
 ```
 
-Above steps about udev rules are optional and can be omitted, you need to prepend `sudo` to `MSP430Flasher` everytime.
+Above steps about udev rules are optional and can be omitted, if you prepend `sudo` to `MSP430Flasher` everytime.
 
 # Debugging
 
