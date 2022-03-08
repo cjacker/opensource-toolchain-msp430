@@ -19,7 +19,7 @@ For more information, please refer to https://en.wikipedia.org/wiki/TI_MSP430
   - For rust toolchain, please refer to https://github.com/rust-embedded/msp430-quickstart
 * Debugger, mspdebug/gdb
 * SDK, opensource headers/linker script provied by TI.
-* Flashing tool, mspdebug/MSP430Flasher from TI.
+* Flashing tool, mspdebug, MSP430Flasher from TI and bsl-scripter(UART BSL) from TI.
 
 **NOTE**
 
