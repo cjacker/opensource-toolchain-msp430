@@ -86,6 +86,7 @@ clean:
 	-$(RM) $(TARGET).*
 	-$(RM) $(SOURCES:.c=.lst)
 	-$(RM) $(DEPEND)
+	-$(RM) *.log
 	rm -rf Log 
 	
 flash_msp430flasher: $(TARGET).txt
