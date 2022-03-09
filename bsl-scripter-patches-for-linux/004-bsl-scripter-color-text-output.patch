@@ -1,0 +1,14 @@
+diff -Nur ti/Source-Linux/ColorText.h ti.new/Source-Linux/ColorText.h
+--- ti/Source-Linux/ColorText.h	2018-04-26 19:20:52.000000000 +0800
++++ ti.new/Source-Linux/ColorText.h	2022-03-09 13:33:10.267773407 +0800
+@@ -117,6 +117,7 @@
+ // Streaming with GREEN color for succesfull response message
+ const std::string green("\033[1;32m");
+ // Streaming with default color
+-const std::string white("\033[97m");
++// otherwise, it only works with dark theme terminal
++const std::string white("\033[0m");
+ 
+-#endif
+\ 文件尾没有换行符
++#endif

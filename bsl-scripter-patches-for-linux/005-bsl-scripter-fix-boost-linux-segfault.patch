@@ -1,0 +1,12 @@
+diff -Nur ti/Source-Linux/UartComm.cpp ti.new/Source-Linux/UartComm.cpp
+--- ti/Source-Linux/UartComm.cpp	2022-03-09 14:04:41.015722182 +0800
++++ ti.new/Source-Linux/UartComm.cpp	2022-03-09 14:05:10.520742837 +0800
+@@ -472,7 +472,7 @@
+ {
+ 	if (isOpen())
+ 	{
+-		boost::system::error_code ec = port.close(ec);
++		port.close();
+ 	}
+ }
+ 
