@@ -13,10 +13,6 @@
 LOG
 //"INVOKE" enable BSL
 MODE INVOKE FRxx UART 9600 PARITY /dev/ttyUSB0
-
-//fetch BSL version
-TX_BSL_VERSION
-
 //gives wrong password to do mass erase
 RX_PASSWORD pass32_wrong.txt
 //
@@ -26,6 +22,8 @@ RX_PASSWORD pass32_wrong.txt
 //
 DELAY 2000
 RX_PASSWORD pass32_default.txt
+//fetch BSL version
+TX_BSL_VERSION
 RX_DATA_BLOCK blink.txt
 CRC_CHECK 0x4400 0x0020
 SET_PC 0x4400

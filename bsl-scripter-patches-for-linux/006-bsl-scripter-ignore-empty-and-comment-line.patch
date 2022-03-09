@@ -1,0 +1,15 @@
+--- ti/Source-Linux/Interpreter.cpp	2022-03-09 14:19:45.996800449 +0800
++++ ti.n/Source-Linux/Interpreter.cpp	2022-03-09 14:18:58.727692464 +0800
+@@ -726,6 +726,12 @@
+ 	while (scripterStream->getLine())
+ 	{
+ 		std::string line = scripterStream->retStringCommand();
++    // empty line.
++    if(line.length() == 0 || line.length() == 1)
++      continue;
++    // comment
++    if(util->isUnexecutedLine(line))
++      continue;
+ 
+ 		//Writes the command or comments on the script file to the log file
+ 		scripterStream->writeLogFile(line, false);
