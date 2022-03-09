@@ -222,6 +222,8 @@ cd bsl-scripter
 cat 001-bsl-scripter-build-linux.patch | patch -p1
 cat 002-bsl-scripter-invoke.patch | patch -p1               
 cat 003-bsl-scripter-test-reset-for-linux.patch | patch -p1
+cat 004-bsl-scripter-color-text-output.patch | patch -p1
+cat 005-bsl-scripter-fix-boost-linux-segfault.patch | patch -p1
 cd Source-Linux
 make BIT64=1
 sudo install -m0755 bsl-scripter-linux-64 /usr/bin/bsl-scripter
