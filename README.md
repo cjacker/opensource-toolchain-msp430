@@ -14,32 +14,32 @@ For more information, please refer to https://en.wikipedia.org/wiki/TI_MSP430
 **NOTE**
 
 - MSP430 support JTAG and a 2-wire JTAG(Spy-Bi-Wire) interface, but it's NOT compatible with ARM JTAG, so you can not use your ARM JTAG adapters with MSP430.
-- Ti's Launchpad with EZFET usually have some jumpers between the EZFET and MCU, you can use the EZFET standalone to connect to other MSP430 development board.
+- Ti's Launchpad with EZFET usually have some jumpers between the EZFET and MCU, you can use the EZFET standalone with other MSP430 development board.
 
 # Toolchain overview
 * Compiler, gcc with TI's official support.
   - For rust toolchain, please refer to https://github.com/rust-embedded/msp430-quickstart
 * Debugger, mspdebug/gdb
-* SDK, opensource headers/linker script provied by TI.
+* SDK, opensource headers/linker scripts provided and supported by TI officially.
 * Flashing tool, mspdebug, MSP430Flasher from TI and bsl-scripter(UART BSL) from TI.
 
 **NOTE**
 
 The Opensource toolchain is supported very well by opensource community and TI officially.
 
-TI officially provide opensource gcc toolchains and MCU support files, and released its' MSP430Flasher and  msp-debug-stack under BSD license.
+TI officially provide opensource gcc toolchains and MCU support files, and released its' MSP430Flasher, msp-debug-stack and various related tools under BSD license.
 
 # The MSP430 GNU Toolchain
 
 The sources and prebuilt releases of MSP430 GCC can be downloaded from https://www.ti.com/tool/MSP430-GCC-OPENSOURCE#downloads, it includes binutils/gcc/gdb/newlib.
 
-Up to this tutorial written, the lastest version is '9.3.1.2' with released date '23 Jul 2021', you can download the sourcecodes or patchset to build the toolchain yourself using configuration options such as `./configure --prefix=/opt/msp430-gcc --target=msp430-elf`.
+Up to this tutorial written, the lastest version is '9.3.1.2' with released date '23 Jul 2021', you can download the source codes or patchset to build the toolchain yourself using configuration options such as `./configure --prefix=/opt/msp430-gcc --target=msp430-elf`.
 
 Here we directly use the prebuilt release since it is well supported officially.
 
-Download the prebuilt toolchain from http://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPGCC/9_3_1_2/export/msp430-gcc-9.3.1.11_linux64.tar.bz2 and support files from http://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPGCC/9_3_1_2/export/msp430-gcc-support-files-1.212.zip. If you use other arch, such as 32bit x86, you should download the 32bit linux release. for ARM, you have to build it yourself.
+Download the prebuilt toolchain from http://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPGCC/9_3_1_2/export/msp430-gcc-9.3.1.11_linux64.tar.bz2 and support files from http://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPGCC/9_3_1_2/export/msp430-gcc-support-files-1.212.zip. If you use 32bit x86, you should download the 32bit linux release. for ARM, you have to build the toolchain yourself.
 
-This prebuilt release requires libncusesw.so.5 instead of so.6 shipped by most mainstream dist. it's a little bit old but most dist should already provide a compat libs, such as 'ncurses-compat-libs' for fedora or 'libncurses5' for ubuntu, please install via YUM or APT first.
+This prebuilt release requires 'libncusesw.so.5' instead of 'so.6' shipped by most mainstream dist today. it's a little bit old but most dist should already provide a compat lib, such as 'ncurses-compat-libs' for fedora or 'libncurses5' for ubuntu, please install it with YUM or APT first.
 
 
 ```
@@ -52,16 +52,17 @@ sudo mv msp430-gcc-support-files/include/*.ld /opt/msp430-gcc/msp430-elf/lib
 sudo rm -rf msp430-gcc-support-files
 ```
 
-Here also installed the support files include headers and linkers for different MCUs to `msp430-elf` dir, after that, you can use these headers anywhere, otherwise, you have to deal with include dir and pass linker script to `ld`, it's not very easy for beginners.
+Here also installed the support files include headers and linker scripts for different MCUs to `msp430-elf` dir, after that, you can use these headers anywhere, otherwise you have to deal with include dir and pass linker script to `ld`, it's a little bit difficult for beginners.
 
 After installation finished, please add `/opt/msp430-gcc/bin` to PATH env according to your shell.
 
 # MSP Debug Stack
+
 The MSP debug stack (MSPDS) for all MSP430™ microcontrollers (MCUs) and SimpleLink™ MSP432™ devices consists of a static library on the host system side as well as an embedded firmware that runs on debug tools including the MSP-FET, MSP-FET430UIF or on-board eZ debuggers. 
 
 It is the bridging element between all PC software and all MSP430 and SimpleLink MSP432 microcontroller derivatives and handles tasks such as code download, stepping through code or break points. 
 
-You can download MSP Debug Stack from https://www.ti.com/tool/MSPDS#downloads, up to this tutorial written, the latest version is '3.15.1.1' with release date '12 Jun 2020'. Building it need a patch for linux, the patch provied within this repo.
+You can download MSP Debug Stack from https://www.ti.com/tool/MSPDS#downloads, up to this tutorial written, the latest version is '3.15.1.1' with release date '12 Jun 2020'. Building it for linux need some codes changes, I made one and provide it within this repo.
 
 Building:
 ```
@@ -81,7 +82,7 @@ sudo cp DLL430_v3/include/* /usr/include/libmsp430
 
 # SDKS
 
-SDK for TI MSP430 acctually is a set of headers and linker scripts for various MSP430 models, we already install it with GCC toolchain.
+SDK for TI MSP430 actually is a set of headers and linker scripts for various MSP430 models, we already install it with GCC toolchain above.
 
 Let's blink a LED on board, here I use fr6989 launchpad as example, please read the circuit diagram of your board to find the IO pin you should manupulate to turn on or toggle a LED, fr6989 have two LED on board, the codes below turn on one and blink another one.
 
@@ -121,14 +122,15 @@ msp430-elf-gcc -g -mmcu=msp430fr6989 -o main main.c
 If built successfully, 'main' elf generated, it means toolchain works. otherwise, please examine the steps of the toolchain installation.
 
 # Flashing
-There are 3 Flashing tools you can use with linux for MSP430, include mspdebug, msp-flasher(TI) and bsl scripter(TI)
+There are 3 Flashing tools you can use with linux for MSP430, include mspdebug, msp-flasher(TI) and bsl scripter(TI, for newer MCU model)
 
 **Note:**
-* Not all models of MSP430 support BSL UART flashing, please read the datasheet first.
-* TI officially provided a bsl-scripter tool and only works with TI MSP BSL rocket adapter and some adapter special designed for MSP430.
-* **If you want to use general USB to TTL UART adapter, at least it should have RX/TX/DTR/RTS pins and need some patches to bsl scripter.**
+* Not all models of MSP430 support BSL UART flashing, please read the corresponding datasheet first.
+* TI officially provided 'bsl-scripter' tool and only works with TI MSP BSL rocket adapter and some adapter specially designed for MSP430.
+* **If you want to use general USB to TTL UART adapter, at least it should have RX/TX/DTR/RTS pins and need some patches I made to bsl scripter.**
 
 ## mspdebug
+
 MSPDebug is a free debugger for use with MSP430 MCUs. 
 
 It supports FET430UIF, eZ430, RF2500 and Olimex MSP430-JTAG-TINY programmers, as well as many other compatible devices. 
@@ -156,7 +158,7 @@ sudo mspdebug tilib -d /dev/ttyACM0 --allow-fw-update
 
 and try flashing again.
 
-If you use defferent FET model, try to use other drivers instead of 'tilib'.
+If you use different FET adapter, try to use other drivers instead of 'tilib', for more info, run `mspdebug --help`.
 
 ## MSPFlasher provided by TI officially
 
@@ -203,9 +205,9 @@ Above steps about udev rules are optional and can be omitted, if you prepend `su
 ## UART BSL flashing
 TI provide bsl scripter for some new MSP430 model, it support UART/I2C flashing but still need a special adatper or a special designed circuit. 
 
-If you want to use general USB to TTL UART adapter, you should apply some patches to bsl scripter and rebuilt it by yourself.
+If you want to use general USB to TTL UART adapter, you should apply some patches to bsl scripter and rebuilt it yourself.
 
-The code changes is described at https://github.com/gbhug5a/CP2102-with-BSL-Scripter-for-MSP430 and I implement the TEST/RESET signal control for Linux, since the upstream codes from TI leave them unimplemented for Linux.
+The code changes is described at https://github.com/gbhug5a/CP2102-with-BSL-Scripter-for-MSP430 and I implement the TEST/RESET signal control for Linux, the upstream codes from TI leave them unimplemented for Linux.
 
 The BSL Scripter is a command line tool to communicate with the bootloader (BSL) on an MSP430™ or SimpleLink™ MSP432™ microcontroller. 
 
@@ -225,18 +227,18 @@ make BIT64=1
 sudo install -m0755 bsl-scripter-linux-64 /usr/bin/bsl-scripter
 ```
 
-This tutorial use FR6989 Launchpad, please wire up USB2TTL adapter with Launchpad as:
+This tutorial use FR6989 Launchpad, please wire up a USB2TTL adapter with FR6989 Launchpad as:
 
 ```
-RX->TX(P2.0), the BSL TX, not the backchannel TX
-TX->RX(P2.1), the BSL RX, not the backchannel RX
-DTR->SBWTDIO/RST
-RTS->SBWTCK/TEST
+RX->TX(P2.0), the BSL TX, not the backchannel TX, for different MCU model, refer to the datasheet.
+TX->RX(P2.1), the BSL RX, not the backchannel RX, for different MCU model, refer to the datasheet.
+DTR->SBWTDIO/RST, it may only marked as 'SBWTDIO'
+TS->SBWTCK/TEST, it may only marked as 'SBWTCK'
 GND->GND
 VCC->VCC, 3.3v, if the board need power supply from USB2TTL adapter.
 ```
 
-And use the `FRxx_uart` examples in `bsl-scripter/ScriptExampleLinux`, if you use general USB to TTL adapter, please change the `MODE` line of `script_FRxx_uart.txt` from
+And use the `FRxx_uart` examples in `bsl-scripter/ScriptExampleLinux`, if you use a general USB to TTL adapter, please change the `MODE` line of `script_FRxx_uart.txt` from
 ```
 MODE FRxx UART 9600 /dev/ttyACM0
 ```
@@ -246,7 +248,7 @@ MODE INVOKE FRxx UART 9600 PARITY /dev/ttyUSB0
 ```
 **'INVOKE'** means a special workaround to enter BSL with general USB to TTL adapter.
 
-**'PARITY'** here is for my FT2232 adapter, otherwise I will get a 'incorrect header!' error, you may not need to set this arg.
+**'PARITY'** here is for my adapter, otherwise I will get a 'incorrect header!' error, maybe you needn't to set this arg.
 
 and change the device according to your adapter, for example, for my 2 channel ft2232, it's '/dev/ttyUSB0'.
 
