@@ -241,11 +241,11 @@ to
 ```
 MODE INVOKE FRxx UART 9600 PARITY /dev/ttyUSB0
 ```
-the **'INVOKE'** means a special workaround to enter BSL with general USB to TTL adapter.
+**'INVOKE'** means a special workaround to enter BSL with general USB to TTL adapter.
 
-the **'PARITY'** here is for my FT2232 adapter, you may not need to set this arg.
+**'PARITY'** here is for my FT2232 adapter, otherwise I will get a 'incorrect header!' error, you may not need to set this arg.
 
-and change the device according to your adapter.
+and change the device according to your adapter, for example, for my 2 channel ft2232, it's '/dev/ttyUSB0'.
 
 and try run:
 ```
@@ -256,7 +256,7 @@ the output should looks like:
 
 <img src="https://user-images.githubusercontent.com/1625340/157285979-3abd84aa-9436-469e-9c9e-6071801a4322.png" width="70%"/>
 
-If you use he 'blink' example within this repo, try to run:
+If you use he 'blink' example within this repo, you need modify the 'script_frxx_uart.txt' first and try to run:
 
 ```
 make flash_bsl
