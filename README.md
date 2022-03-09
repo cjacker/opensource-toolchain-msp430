@@ -7,6 +7,8 @@ For more information, please refer to https://en.wikipedia.org/wiki/TI_MSP430
 * A development board.
   - I prefer TI's MSP430 LaunchPad with EZFET jtag debugger integrated for beginners. If you have other minimum MSP430 system without FET, you may also need a FET(Flashing Emulation Tool) adapter (It's not cheap, even more expensive than a official LaunchPad).
   - If you really do not know which one to choose, buy the cheapest one such as G2/G2ET or more high end such as FR5994 or FR6989.
+* A FET adapter, if there is no one on development board.
+* Optional, A USB to TTL adapter, at least with RX/TX/DTR/RTS pins (such as ftx232, ch34x), or a more expensive special BSL adapter such as MSP BSL rocket，if you want to use BSL UART flashing. 
 
 
 **NOTE**
@@ -154,6 +156,7 @@ sudo mspdebug tilib -d /dev/ttyACM0 --allow-fw-update
 
 and try flashing again.
 
+If you use defferent FET model, try to use other drivers instead of 'tilib'.
 
 ## MSPFlasher provided by TI officially
 
