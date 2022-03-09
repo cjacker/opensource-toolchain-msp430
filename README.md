@@ -225,12 +225,12 @@ sudo install -m0755 bsl-scripter-linux-64 /usr/bin/bsl-scripter
 This tutorial use FR6989 Launchpad, please wire up USB2TTL adapter with Launchpad as:
 
 ```
-RX->TX(P2.0), not the backchannel TX
-TX->RX(P2.1), not the backchannel RX
+RX->TX(P2.0), the BSL TX, not the backchannel TX
+TX->RX(P2.1), the BSL RX, not the backchannel RX
 DTR->SBWTDIO/RST
 RTS->SBWTCK/TEST
 GND->GND
-VCC->VCC, if the board need power supply from USB2TTL adapter.
+VCC->VCC, 3.3v, if the board need power supply from USB2TTL adapter.
 ```
 
 And use the `FRxx_uart` examples in `bsl-scripter/ScriptExampleLinux`, if you use general USB to TTL adapter, please change the `MODE` line of `script_FRxx_uart.txt` from
@@ -255,6 +255,12 @@ sudo bsl-scripter script_FRxx_uart.txt
 the output should looks like:
 
 <img src="https://user-images.githubusercontent.com/1625340/157285979-3abd84aa-9436-469e-9c9e-6071801a4322.png" width="70%"/>
+
+If you use he 'blink' example within this repo, try to run:
+
+```
+make flash_bsl
+```
 
 
 # Debugging
@@ -326,7 +332,7 @@ to flash with mspdebug:
 make flash_mspdebug
 ```
 
-
-There are still a lot need to write, for example, various target file formats, etc. but this tutorial should be enough to help you start MSP430 development with Linux.
-
-
+to flash with bsl-scripter:
+```
+make flash_bsl
+```
