@@ -1,0 +1,23 @@
+//
+//Script example FRxx UART BSL
+//
+//Device : MSP430FR6989
+//Comm Bridge: MSP-BSL Rocket
+//
+//Download blink application through
+//UART BSL in FRAM device
+//
+LOG
+MODE INVOKE FRxx UART 9600 PARITY /dev/ttyUSB0
+//gives wrong password to do mass erase
+RX_PASSWORD pass32_wrong.txt
+//
+//add delay after giving wrong password
+//because the device does not give
+//any response after wrong password applied
+//
+DELAY 2000
+RX_PASSWORD pass32_default.txt
+RX_DATA_BLOCK blink.txt
+CRC_CHECK 0x4400 0x0020
+SET_PC 0x4400

@@ -17,6 +17,8 @@ MSPFLASHER = MSP430Flasher
 MSPDEBUG   = mspdebug
 MSPDEBUG_DRIVER     = tilib
 MSPDEBUG_DEVICE     = /dev/ttyACM0
+# BSL Scripter
+BSLSCRIPTER=bsl-scripter
 # List all the source files here
 # eg if you have a source file foo.c then list it here
 SOURCES = main.c
@@ -91,3 +93,6 @@ flash_msp430flasher: $(TARGET).txt
 
 flash_mspdebug: $(TARGET).elf
 	$(MSPDEBUG) $(MSPDEBUG_DRIVER) -d $(MSPDEBUG_DEVICE) "prog $(TARGET).elf"
+
+flash_bsl: $(TARGET).txt
+	sudo $(BSLSCRIPTER) ./script_frxx_uart.txt	
