@@ -235,8 +235,8 @@ This tutorial use FR6989 Launchpad, please wire up a USB2TTL adapter with FR6989
 ```
 RX->TX(P2.0), the BSL TX, not the backchannel TX, for different MCU model, refer to the datasheet.
 TX->RX(P2.1), the BSL RX, not the backchannel RX, for different MCU model, refer to the datasheet.
-DTR->SBWTDIO/RST, it may only marked as 'SBWTDIO'
-TS->SBWTCK/TEST, it may only marked as 'SBWTCK'
+DTR->SBWTDIO/RST, usually it marked as 'SBWTDIO'
+TS->SBWTCK/TEST, usually it marked as 'SBWTCK'
 GND->GND
 VCC->VCC, 3.3v, if the board need power supply from USB2TTL adapter.
 ```
@@ -251,7 +251,7 @@ MODE INVOKE FRxx UART 9600 PARITY /dev/ttyUSB0
 ```
 **'INVOKE'** means a special workaround to enter BSL with general USB to TTL adapter.
 
-**'PARITY'** here is for my adapter, otherwise I will get a 'incorrect header!' error, maybe you needn't to set this arg.
+**'PARITY'** here is for my adapter, otherwise it will get a 'incorrect header!' error, maybe you needn't set this arg.
 
 and change the device according to your adapter, for example, for my 2 channel ft2232, it's '/dev/ttyUSB0'.
 
