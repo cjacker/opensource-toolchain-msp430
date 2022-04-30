@@ -236,7 +236,7 @@ This tutorial use FR6989 Launchpad, please wire up a USB2TTL adapter with FR6989
 RX->TX(P2.0), the BSL TX, not the backchannel TX, for different MCU model, refer to the datasheet.
 TX->RX(P2.1), the BSL RX, not the backchannel RX, for different MCU model, refer to the datasheet.
 DTR->SBWTDIO/RST, usually it marked as 'SBWTDIO'
-TS->SBWTCK/TEST, usually it marked as 'SBWTCK'
+RTS->SBWTCK/TEST, usually it marked as 'SBWTCK'
 GND->GND
 VCC->VCC, 3.3v, if the board need power supply from USB2TTL adapter.
 ```
