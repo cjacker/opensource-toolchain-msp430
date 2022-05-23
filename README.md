@@ -7,7 +7,7 @@ For more information, please refer to https://en.wikipedia.org/wiki/TI_MSP430
 * A development board.
   - I prefer TI's MSP430 LaunchPad with EZFET jtag debugger integrated for beginners. If you have other minimum MSP430 system without FET, you may also need a FET(Flashing Emulation Tool) adapter (It's not cheap, even more expensive than a official LaunchPad).
   - If you really do not know which one to choose, buy the cheapest one such as G2/G2ET or more high end such as FR5994 or FR6989.
-* A FET adapter, if there is no one on development board.
+* A FET adapter, if it is not integreated on development board.
 * Optional, A USB to TTL adapter, at least with RX/TX/DTR/RTS pins (such as ftx232, ch34x), or a more expensive special BSL adapter such as MSP BSL rocket，if you want to use BSL UART flashing. 
 
 
@@ -17,6 +17,7 @@ For more information, please refer to https://en.wikipedia.org/wiki/TI_MSP430
 - Ti's Launchpad with EZFET usually have some jumpers between the EZFET and MCU, you can use the EZFET standalone with other MSP430 development board.
 
 # Toolchain overview
+
 * Compiler, gcc with TI's official support.
   - For rust toolchain, please refer to https://github.com/rust-embedded/msp430-quickstart
 * Debugger, mspdebug/gdb
@@ -62,7 +63,7 @@ The MSP debug stack (MSPDS) for all MSP430™ microcontrollers (MCUs) and Simple
 
 It is the bridging element between all PC software and all MSP430 and SimpleLink MSP432 microcontroller derivatives and handles tasks such as code download, stepping through code or break points. 
 
-You can download MSP Debug Stack from https://www.ti.com/tool/MSPDS#downloads, up to this tutorial written, the latest version is '3.15.1.1' with release date '12 Jun 2020'. Building it for linux need some codes changes, I made one and provide it within this repo.
+You can download MSP Debug Stack from https://www.ti.com/tool/MSPDS#downloads, up to this tutorial written, the latest version is '3.15.1.1' with release date '12 Jun 2020'. Building it for linux need some changes, I made one and provide it within this repo.
 
 Building:
 ```
@@ -194,13 +195,21 @@ reload udev rules or just reboot:
 sudo udevadm control --reload-rules
 sudo udevadm trigger
 ```
-
+(MSPFLASHER) -n $(MCU) -w "$(TARGET).txt" -v -z [VCC]
 and add current user to `dialout` group
 ```
 usermod -a -G dialout <your user name>
 ```
 
 Above steps about udev rules are optional and can be omitted, if you prepend `sudo` to `MSP430Flasher` everytime.
+
+Run below command to flashing:
+```
+MSP430Flasher -n msp430fr6989 -w "blink.txt" -v -z [VCC]
+```
+
+Take a look at blink demo to find out how to generate the 'blink.txt'.
+
 
 ## UART BSL flashing
 TI provide bsl scripter for some new MSP430 model, it support UART/I2C flashing but still need a special adatper or a special designed circuit. 
