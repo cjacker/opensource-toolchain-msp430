@@ -195,7 +195,7 @@ reload udev rules or just reboot:
 sudo udevadm control --reload-rules
 sudo udevadm trigger
 ```
-(MSPFLASHER) -n $(MCU) -w "$(TARGET).txt" -v -z [VCC]
+
 and add current user to `dialout` group
 ```
 usermod -a -G dialout <your user name>
