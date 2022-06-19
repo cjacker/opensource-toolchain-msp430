@@ -1,4 +1,7 @@
 # Opensource toolchain for TI MSP430
+
+**NOTE: the MIT license of this repo means all individual resources made by myself, the content of the tutorial and the example codes is licensed under MIT. All third-party opensource projects, upstream source codes and patches to other opensource projects will/should follow their own LICENSE.**
+
 The MSP430 is a mixed-signal microcontroller family from Texas Instruments, first introduced on 14 February 1992. Built around a 16-bit CPU, the MSP430 is designed for low cost and, specifically, **low power consumption** embedded applications. 
 
 For more information, please refer to https://en.wikipedia.org/wiki/TI_MSP430
